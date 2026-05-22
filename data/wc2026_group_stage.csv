@@ -1,0 +1,49 @@
+team_home,team_away,kickoff_utc,stage,game_date
+USA,Panama,2026-06-11 23:00:00+00,group,2026-06-11
+Mexico,Ecuador,2026-06-12 02:00:00+00,group,2026-06-11
+Canada,Venezuela,2026-06-12 18:00:00+00,group,2026-06-12
+Argentina,Chile,2026-06-12 21:00:00+00,group,2026-06-12
+Spain,Brazil,2026-06-13 00:00:00+00,group,2026-06-12
+England,France,2026-06-13 03:00:00+00,group,2026-06-12
+Germany,Netherlands,2026-06-13 18:00:00+00,group,2026-06-13
+Belgium,Uruguay,2026-06-13 21:00:00+00,group,2026-06-13
+Albania,Ukraine,2026-06-14 00:00:00+00,group,2026-06-13
+Switzerland,Cameroon,2026-06-14 03:00:00+00,group,2026-06-13
+Morocco,Portugal,2026-06-14 18:00:00+00,group,2026-06-14
+Japan,Senegal,2026-06-14 21:00:00+00,group,2026-06-14
+Nigeria,Australia,2026-06-15 00:00:00+00,group,2026-06-14
+Côte d'Ivoire,Algeria,2026-06-15 03:00:00+00,group,2026-06-14
+Colombia,Iran,2026-06-15 18:00:00+00,group,2026-06-15
+South Korea,Peru,2026-06-15 21:00:00+00,group,2026-06-15
+USA,Albania,2026-06-16 00:00:00+00,group,2026-06-15
+Mexico,Switzerland,2026-06-16 03:00:00+00,group,2026-06-15
+Canada,Morocco,2026-06-16 18:00:00+00,group,2026-06-16
+Argentina,Japan,2026-06-16 21:00:00+00,group,2026-06-16
+Spain,Nigeria,2026-06-17 00:00:00+00,group,2026-06-16
+England,Côte d'Ivoire,2026-06-17 03:00:00+00,group,2026-06-16
+Germany,Colombia,2026-06-17 18:00:00+00,group,2026-06-17
+Belgium,South Korea,2026-06-17 21:00:00+00,group,2026-06-17
+Panama,Ukraine,2026-06-18 00:00:00+00,group,2026-06-17
+Ecuador,Cameroon,2026-06-18 03:00:00+00,group,2026-06-17
+Venezuela,Portugal,2026-06-18 18:00:00+00,group,2026-06-18
+Chile,Senegal,2026-06-18 21:00:00+00,group,2026-06-18
+Brazil,Australia,2026-06-19 00:00:00+00,group,2026-06-18
+France,Algeria,2026-06-19 03:00:00+00,group,2026-06-18
+Netherlands,Iran,2026-06-19 18:00:00+00,group,2026-06-19
+Uruguay,Peru,2026-06-19 21:00:00+00,group,2026-06-19
+USA,Ukraine,2026-06-21 00:00:00+00,group,2026-06-20
+Panama,Albania,2026-06-21 00:00:00+00,group,2026-06-20
+Mexico,Cameroon,2026-06-21 21:00:00+00,group,2026-06-21
+Ecuador,Switzerland,2026-06-21 21:00:00+00,group,2026-06-21
+Canada,Portugal,2026-06-22 00:00:00+00,group,2026-06-21
+Venezuela,Morocco,2026-06-22 00:00:00+00,group,2026-06-21
+Argentina,Senegal,2026-06-22 21:00:00+00,group,2026-06-22
+Chile,Japan,2026-06-22 21:00:00+00,group,2026-06-22
+Spain,Australia,2026-06-23 00:00:00+00,group,2026-06-22
+Brazil,Nigeria,2026-06-23 00:00:00+00,group,2026-06-22
+England,Algeria,2026-06-23 21:00:00+00,group,2026-06-23
+France,Côte d'Ivoire,2026-06-23 21:00:00+00,group,2026-06-23
+Germany,Iran,2026-06-24 00:00:00+00,group,2026-06-23
+Netherlands,Colombia,2026-06-24 00:00:00+00,group,2026-06-23
+Belgium,Peru,2026-06-24 21:00:00+00,group,2026-06-24
+Uruguay,South Korea,2026-06-24 21:00:00+00,group,2026-06-24
