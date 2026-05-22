@@ -44,7 +44,10 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
 
     if data.startswith("nav|"):
         mode, new_idx, old_home, old_away, old_match_idx = parse_nav_callback(data)
-        if participant:
+        if mode == "r" and (not participant or not participant["is_admin"]):
+            await query.answer("🚫 Только для администратора.", show_alert=True)
+            return
+        if mode == "p" and participant:
             upsert_prediction(participant["id"], matches[old_match_idx]["id"], old_home, old_away)
         await _show_match(query, matches, new_idx, participant["id"] if participant else None, mode)
 
@@ -60,6 +63,9 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
 
     else:
         mode, match_idx, home, away = parse_picker_callback(data)
+        if mode == "r" and (not participant or not participant["is_admin"]):
+            await query.answer("🚫 Только для администратора.", show_alert=True)
+            return
         match = matches[match_idx]
         text = build_picker_text(match, match_idx, len(matches), home, away)
         keyboard = build_picker_keyboard(mode, match_idx, home, away, len(matches))
