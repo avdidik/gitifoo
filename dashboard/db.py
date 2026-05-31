@@ -1,7 +1,7 @@
 import os
 import pandas as pd
-import psycopg2
-import psycopg2.extras
+import psycopg
+from psycopg.rows import dict_row
 import streamlit as st
 
 
@@ -13,14 +13,11 @@ def _get_db_url() -> str:
 
 
 def _query(sql: str, params=None) -> pd.DataFrame:
-    conn = psycopg2.connect(_get_db_url())
-    try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+    with psycopg.connect(_get_db_url(), row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
             cur.execute(sql, params)
             rows = cur.fetchall()
-        return pd.DataFrame([dict(r) for r in rows])
-    finally:
-        conn.close()
+    return pd.DataFrame(rows)
 
 
 @st.cache_data(ttl=300)
