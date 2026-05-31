@@ -4,6 +4,7 @@ from datetime import date, timezone, timedelta
 
 from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN
 from bot.db import open_game_day, get_matches_for_game_day
+from bot.teams import flag
 from telegram import Bot
 
 MSK = timezone(timedelta(hours=3))
@@ -29,7 +30,7 @@ class handler(BaseHTTPRequestHandler):
         lines = [f"🌅 Игровой день {today} открыт! Принимаю прогнозы до 18:00.\n\nМатчи:"]
         for m in matches:
             kickoff = m["kickoff_at"].astimezone(MSK).strftime("%H:%M")
-            lines.append(f"  ⚽ {m['team_home']} vs {m['team_away']} в {kickoff}")
+            lines.append(f"  ⚽ {flag(m['team_home'])} vs {flag(m['team_away'])} в {kickoff}")
         lines.append("\nОтправьте боту /start чтобы сделать прогноз!")
 
         bot = Bot(token=BOT_TOKEN)

@@ -7,6 +7,7 @@ from bot.db import (
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
 from bot.config import ADMIN_ID, GROUP_ID
+from bot.teams import flag
 from datetime import date
 
 
@@ -53,7 +54,7 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     set_match_result(match["id"], home, away)
     resolve_bracket_after_result(match["id"])
     scores = get_day_scores(game_day["id"])
-    lines = [f"✅ Результат: {match['team_home']} {home}:{away} {match['team_away']}\n"]
+    lines = [f"✅ Результат: {flag(match['team_home'])} {home}:{away} {flag(match['team_away'])}\n"]
     lines.append("📊 Очки за матч:")
     for row in scores:
         if row["match_id"] == match["id"]:

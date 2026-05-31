@@ -4,6 +4,7 @@ from datetime import date
 
 from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN
 from bot.db import close_game_day, get_today_game_day, get_all_predictions_for_game_day
+from bot.teams import flag
 from telegram import Bot
 
 
@@ -27,7 +28,7 @@ class handler(BaseHTTPRequestHandler):
         lines = ["⏰ Приём прогнозов закрыт!\n"]
         current_match = None
         for row in preds:
-            match_label = f"{row['team_home']} vs {row['team_away']}"
+            match_label = f"{flag(row['team_home'])} vs {flag(row['team_away'])}"
             if match_label != current_match:
                 lines.append(f"\n⚽ {match_label}")
                 current_match = match_label

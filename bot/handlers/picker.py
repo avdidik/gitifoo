@@ -1,4 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from bot.teams import flag
 
 MAX_GOALS = 6
 
@@ -40,11 +41,13 @@ def build_picker_text(match: dict, match_idx: int, total: int,
     from datetime import timezone, timedelta
     MSK = timezone(timedelta(hours=3))
     kickoff = match["kickoff_at"].astimezone(MSK).strftime("%H:%M")
+    home_name = flag(match["team_home"])
+    away_name = flag(match["team_away"])
     return (
         f"⚽ Матч {match_idx + 1} из {total} — {kickoff}\n"
-        f"🏠 {match['team_home']}  vs  {match['team_away']} ✈️\n\n"
-        f"Счёт: {match['team_home']} {home} — {away} {match['team_away']}\n\n"
-        f"{match['team_home']} (верхний ряд) / {match['team_away']} (нижний ряд)"
+        f"{home_name}  vs  {away_name}\n\n"
+        f"Счёт: {home_name} {home} — {away} {away_name}\n\n"
+        f"{home_name} (верхний ряд) / {away_name} (нижний ряд)"
     )
 
 

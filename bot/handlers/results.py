@@ -4,6 +4,7 @@ from bot.db import (
     get_today_game_day, get_matches_for_game_day,
     get_all_predictions_for_game_day, get_day_scores, get_standings,
 )
+from bot.teams import flag
 from datetime import date
 
 
@@ -25,7 +26,7 @@ async def handle_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lines = ["📊 Результаты дня:\n"]
         current_match = None
         for row in scores:
-            match_label = f"{row['team_home']} {row['result_home']}:{row['result_away']} {row['team_away']}"
+            match_label = f"{flag(row['team_home'])} {row['result_home']}:{row['result_away']} {flag(row['team_away'])}"
             if match_label != current_match:
                 lines.append(f"\n⚽ {match_label}")
                 current_match = match_label
@@ -47,7 +48,7 @@ async def handle_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lines = ["📋 Прогнозы на сегодня:\n"]
         current_match = None
         for row in preds:
-            match_label = f"{row['team_home']} vs {row['team_away']}"
+            match_label = f"{flag(row['team_home'])} vs {flag(row['team_away'])}"
             if match_label != current_match:
                 lines.append(f"\n⚽ {match_label}")
                 current_match = match_label
