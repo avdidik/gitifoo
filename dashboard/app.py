@@ -10,9 +10,9 @@ COLORS = ["#F21B54", "#4ECBD9", "#F29D35", "#4E63D9"]
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(color="#F8FAFC", size=15),
-    xaxis=dict(showgrid=False, linecolor="#2D3A8A"),
-    yaxis=dict(showgrid=False, linecolor="#2D3A8A", rangemode="tozero"),
+    font=dict(color="#F1F5F9", size=15),
+    xaxis=dict(showgrid=False, linecolor="#2D3148"),
+    yaxis=dict(showgrid=False, linecolor="#2D3148", rangemode="tozero"),
     legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(size=14)),
     margin=dict(l=0, r=0, t=30, b=0),
 )
@@ -22,11 +22,11 @@ st.set_page_config(page_title="FWC 2026", page_icon="⚽", layout="wide")
 st.markdown("""
 <style>
 [data-testid="stMetric"] {
-    background: #172573;
+    background: #1E2130;
     border-radius: 12px;
     padding: 16px 20px;
 }
-[data-testid="stMetricValue"] { color: #4ECBD9; }
+[data-testid="stMetricValue"] { color: #818CF8; }
 section[data-testid="stSidebar"] { background: #1E2130; }
 [data-testid="stDataFrame"] * { font-size: 16px !important; }
 </style>
