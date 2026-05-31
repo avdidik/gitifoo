@@ -63,6 +63,13 @@ def _build_race_df(raw: pd.DataFrame) -> pd.DataFrame:
     return raw
 
 
+def normalize_accuracy(melted: pd.DataFrame) -> pd.DataFrame:
+    totals = melted.groupby("name")["count"].transform("sum")
+    result = melted.copy()
+    result["pct"] = (result["count"] / totals * 100).round(1)
+    return result
+
+
 @st.cache_data(ttl=300)
 def get_scores_by_stage() -> pd.DataFrame:
     return _query("""

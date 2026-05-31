@@ -1,5 +1,5 @@
 import pandas as pd
-from dashboard.db import _build_race_df
+from dashboard.db import _build_race_df, normalize_accuracy
 
 
 def test_build_race_df_cumsum():
@@ -13,3 +13,14 @@ def test_build_race_df_cumsum():
     assert list(andrey["cumpoints"]) == [3, 4]
     lekha = result[result["name"] == "Лёха"].sort_values("game_date")
     assert list(lekha["cumpoints"]) == [2, 5]
+
+
+def test_normalize_accuracy():
+    df = pd.DataFrame({
+        "name": ["Андрей", "Андрей", "Лёха", "Лёха"],
+        "type": ["exact", "miss", "exact", "miss"],
+        "count": [3, 1, 1, 3],
+    })
+    result = normalize_accuracy(df)
+    andrey = result[result["name"] == "Андрей"]
+    assert abs(andrey[andrey["type"] == "exact"]["pct"].values[0] - 75.0) < 0.01
