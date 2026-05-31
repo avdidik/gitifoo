@@ -2,7 +2,7 @@ import asyncio
 from http.server import BaseHTTPRequestHandler
 from datetime import date, timezone, timedelta
 
-from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN
+from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN, BOT_URL
 from bot.db import open_game_day, get_matches_for_game_day
 from bot.teams import flag
 from telegram import Bot
@@ -31,7 +31,7 @@ class handler(BaseHTTPRequestHandler):
         for m in matches:
             kickoff = m["kickoff_at"].astimezone(MSK).strftime("%H:%M")
             lines.append(f"  ⚽ {flag(m['team_home'])} vs {flag(m['team_away'])} в {kickoff}")
-        lines.append("\nОтправьте боту /start чтобы сделать прогноз!")
+        lines.append(f"\n👉 Сделать прогноз: {BOT_URL}")
 
         bot = Bot(token=BOT_TOKEN)
         asyncio.run(bot.send_message(chat_id=GROUP_ID, text="\n".join(lines)))

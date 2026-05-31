@@ -6,7 +6,7 @@ from bot.db import (
     resolve_bracket_after_result,
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
-from bot.config import ADMIN_ID, GROUP_ID
+from bot.config import ADMIN_ID, GROUP_ID, DASH_URL
 from bot.teams import flag
 from datetime import date
 
@@ -64,6 +64,8 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     lines.append("\n🏆 Турнирная таблица:")
     for i, s in enumerate(standings, 1):
         lines.append(f"  {i}. {s['name']} — {s['total_points']} pts")
+    if DASH_URL:
+        lines.append(f"\n📊 Статистика: {DASH_URL}")
     await context.bot.send_message(GROUP_ID, "\n".join(lines))
 
     # Auto-advance to next unsaved match if any
