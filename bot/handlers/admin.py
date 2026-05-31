@@ -64,7 +64,17 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     for i, s in enumerate(standings, 1):
         lines.append(f"  {i}. {s['name']} — {s['total_points']} pts")
     await context.bot.send_message(GROUP_ID, "\n".join(lines))
-    await query.edit_message_text("✅ Результат сохранён, итоги отправлены в группу.")
+
+    # Auto-advance to next unsaved match if any
+    matches = get_matches_for_game_day(game_day["id"])
+    next_match = next((m for m in matches if m["result_home"] is None), None)
+    if next_match:
+        idx = matches.index(next_match)
+        text = "✏️ Внести результат\n\n" + build_picker_text(next_match, idx, len(matches), 0, 0)
+        keyboard = build_picker_keyboard("r", idx, 0, 0, len(matches))
+        await query.edit_message_text(text, reply_markup=keyboard)
+    else:
+        await query.edit_message_text("✅ Все результаты сохранены.")
 
 
 async def add_player_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

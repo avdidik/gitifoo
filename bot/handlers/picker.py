@@ -22,15 +22,14 @@ def build_picker_keyboard(mode: str, match_idx: int,
             "← Назад",
             callback_data=f"nav|{mode}|{match_idx - 1}|{home}|{away}|{match_idx}"
         ))
+    nav_row.append(InlineKeyboardButton(
+        "✅ Подтвердить",
+        callback_data=f"done|{mode}|{match_idx}|{home}|{away}"
+    ))
     if match_idx < total_matches - 1:
         nav_row.append(InlineKeyboardButton(
             "Далее →",
             callback_data=f"nav|{mode}|{match_idx + 1}|{home}|{away}|{match_idx}"
-        ))
-    else:
-        nav_row.append(InlineKeyboardButton(
-            "✅ Подтвердить",
-            callback_data=f"done|{mode}|{match_idx}|{home}|{away}"
         ))
 
     return InlineKeyboardMarkup([home_row, away_row, nav_row])
