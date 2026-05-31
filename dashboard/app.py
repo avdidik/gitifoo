@@ -11,8 +11,8 @@ PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(color="#F1F5F9", size=15),
-    xaxis=dict(showgrid=False, linecolor="#2D3148"),
-    yaxis=dict(showgrid=False, linecolor="#2D3148", rangemode="tozero"),
+    xaxis=dict(showgrid=False, linecolor="#2D3148", tickfont=dict(size=14)),
+    yaxis=dict(showgrid=False, linecolor="#2D3148", rangemode="tozero", tickfont=dict(size=14)),
     legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(size=14)),
     margin=dict(l=0, r=0, t=30, b=0),
 )
