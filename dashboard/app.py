@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from dashboard.db import get_daily_points, get_scores_by_stage, get_standings, normalize_accuracy
+from db import get_daily_points, get_scores_by_stage, get_standings, normalize_accuracy
 
 st.set_page_config(page_title="FWC 2026", page_icon="⚽", layout="wide")
 st.title("⚽ FWC 2026 — Турнир")
