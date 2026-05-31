@@ -5,14 +5,14 @@ import streamlit as st
 
 from db import get_daily_points, get_scores_by_stage, get_standings, normalize_accuracy
 
-COLORS = ["#818CF8", "#34D399", "#F472B6", "#FBBF24"]
+COLORS = ["#F21B54", "#4ECBD9", "#F29D35", "#4E63D9"]
 
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(color="#F1F5F9", size=15),
-    xaxis=dict(showgrid=False, linecolor="#2D3148"),
-    yaxis=dict(showgrid=False, linecolor="#2D3148", rangemode="tozero"),
+    font=dict(color="#F8FAFC", size=15),
+    xaxis=dict(showgrid=False, linecolor="#2D3A8A"),
+    yaxis=dict(showgrid=False, linecolor="#2D3A8A", rangemode="tozero"),
     legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(size=14)),
     margin=dict(l=0, r=0, t=30, b=0),
 )
@@ -22,11 +22,11 @@ st.set_page_config(page_title="FWC 2026", page_icon="⚽", layout="wide")
 st.markdown("""
 <style>
 [data-testid="stMetric"] {
-    background: #1E2130;
+    background: #172573;
     border-radius: 12px;
     padding: 16px 20px;
 }
-[data-testid="stMetricValue"] { color: #818CF8; }
+[data-testid="stMetricValue"] { color: #4ECBD9; }
 section[data-testid="stSidebar"] { background: #1E2130; }
 [data-testid="stDataFrame"] * { font-size: 16px !important; }
 </style>
@@ -106,10 +106,10 @@ fig3 = px.bar(
     text="pct",
     labels={"name": "Участник", "pct": "%", "type": ""},
     color_discrete_map={
-        "⭐ Точный счёт (3)": "#818CF8",
-        "🟢 Разница (2)": "#34D399",
-        "🟡 Победитель (1)": "#FBBF24",
-        "❌ Мимо (0)": "#F472B6",
+        "⭐ Точный счёт (3)": "#4ECBD9",
+        "🟢 Разница (2)": "#4E63D9",
+        "🟡 Победитель (1)": "#F29D35",
+        "❌ Мимо (0)": "#F21B54",
     },
 )
 fig3.update_traces(texttemplate="%{text}%", textposition="inside")
