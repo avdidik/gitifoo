@@ -29,14 +29,14 @@ async def handle_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if match_label != current_match:
                 lines.append(f"\n⚽ {match_label}")
                 current_match = match_label
-            pts = {3: "⭐", 2: "🟡", 1: "🟢", 0: "❌"}[row["points"]]
+            pts = {3: "⭐", 2: "🟢", 1: "🟡", 0: "❌"}[row["points"]]
             lines.append(f"  {row['name']}: {row['pred_home']}:{row['pred_away']} {pts} {row['points']} pts")
         standings = get_standings()
         lines.append("\n🏆 Турнирная таблица:")
         for i, s in enumerate(standings, 1):
             lines.append(
                 f"  {i}. {s['name']} — {s['total_points']} pts"
-                f" (⭐{s['exact']} 🟡{s['diff']} 🟢{s['winner']} ❌{s['miss']})"
+                f" (⭐{s['exact']} 🟢{s['diff']} 🟡{s['winner']} ❌{s['miss']})"
             )
         await query.edit_message_text("\n".join(lines))
     else:

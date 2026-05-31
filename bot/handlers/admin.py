@@ -57,7 +57,7 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     lines.append("📊 Очки за матч:")
     for row in scores:
         if row["match_id"] == match["id"]:
-            pts = {3: "⭐", 2: "🟡", 1: "🟢", 0: "❌"}[row["points"]]
+            pts = {3: "⭐", 2: "🟢", 1: "🟡", 0: "❌"}[row["points"]]
             lines.append(f"  {row['name']}: {row['pred_home']}:{row['pred_away']} {pts} {row['points']} pts")
     standings = get_standings()
     lines.append("\n🏆 Турнирная таблица:")
@@ -119,6 +119,6 @@ async def standings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i, s in enumerate(standings, 1):
         lines.append(
             f"{i}. {s['name']} — {s['total_points']} pts "
-            f"(⭐{s['exact']} 🟡{s['diff']} 🟢{s['winner']} ❌{s['miss']})"
+            f"(⭐{s['exact']} 🟢{s['diff']} 🟡{s['winner']} ❌{s['miss']})"
         )
     await update.message.reply_text("\n".join(lines))
