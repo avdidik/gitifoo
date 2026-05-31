@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from bot.db import (
     get_today_game_day, get_matches_for_game_day,
-    get_all_predictions_for_game_day, get_day_scores,
+    get_all_predictions_for_game_day, get_day_scores, get_standings,
 )
 from datetime import date
 
@@ -31,6 +31,13 @@ async def handle_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 current_match = match_label
             pts = {3: "⭐", 2: "🟡", 1: "🟢", 0: "❌"}[row["points"]]
             lines.append(f"  {row['name']}: {row['pred_home']}:{row['pred_away']} {pts} {row['points']} pts")
+        standings = get_standings()
+        lines.append("\n🏆 Турнирная таблица:")
+        for i, s in enumerate(standings, 1):
+            lines.append(
+                f"  {i}. {s['name']} — {s['total_points']} pts"
+                f" (⭐{s['exact']} 🟡{s['diff']} 🟢{s['winner']} ❌{s['miss']})"
+            )
         await query.edit_message_text("\n".join(lines))
     else:
         preds = get_all_predictions_for_game_day(game_day["id"])
