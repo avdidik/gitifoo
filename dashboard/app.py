@@ -93,12 +93,12 @@ st.plotly_chart(fig3, use_container_width=True)
 
 # --- Per-player drill-down ---
 st.subheader("🔍 Детали по участнику")
-players = standings["Участник"].tolist()
+players = standings["name"].tolist()
 selected = st.selectbox("Выбери участника", players)
 
-p_row = standings[standings["Участник"] == selected].iloc[0]
-total = int(p_row["Очки"])
-n_matches = int(p_row[["⭐ Точный", "🟢 Разница", "🟡 Победитель", "❌ Мимо"]].sum())
+p_row = standings[standings["name"] == selected].iloc[0]
+total = int(p_row["total_points"])
+n_matches = int(p_row[["exact", "diff", "winner", "miss"]].sum())
 avg = round(total / n_matches, 2) if n_matches > 0 else 0
 
 col1, col2, col3 = st.columns(3)
