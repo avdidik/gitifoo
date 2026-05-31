@@ -17,7 +17,9 @@ CREATE TABLE matches (
   team_home    TEXT NOT NULL,
   team_away    TEXT NOT NULL,
   kickoff_at   TIMESTAMPTZ NOT NULL,
-  stage        TEXT NOT NULL,  -- group | r32 | r16 | qf | sf | final
+  stage        TEXT NOT NULL,  -- group | play_off
+  label        TEXT,           -- bracket id: A01..A16, B01..B08, QF1..QF4, SF1, SF2, F1, F3
+  match_group  TEXT,           -- group letter A-L (group stage only)
   result_home  INT,
   result_away  INT
 );

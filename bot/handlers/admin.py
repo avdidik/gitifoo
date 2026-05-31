@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from bot.db import (
     get_participant, add_participant, get_today_game_day, get_matches_for_game_day,
     set_match_result, get_standings, get_day_scores, add_match, open_game_day,
+    resolve_bracket_after_result,
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
 from bot.config import ADMIN_ID, GROUP_ID
@@ -50,6 +51,7 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     matches = get_matches_for_game_day(game_day["id"])
     match = matches[match_idx]
     set_match_result(match["id"], home, away)
+    resolve_bracket_after_result(match["id"])
     scores = get_day_scores(game_day["id"])
     lines = [f"✅ Результат: {match['team_home']} {home}:{away} {match['team_away']}\n"]
     lines.append("📊 Очки за матч:")

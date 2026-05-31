@@ -69,13 +69,14 @@ def get_matches_for_game_day(game_day_id: int) -> list[dict]:
             return cur.fetchall()
 
 
-def add_match(game_day_id: int, team_home: str, team_away: str, kickoff_at: str, stage: str) -> dict:
+def add_match(game_day_id: int, team_home: str, team_away: str, kickoff_at: str, stage: str,
+              label: str = None, match_group: str = None) -> dict:
     with get_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                """INSERT INTO matches (game_day_id, team_home, team_away, kickoff_at, stage)
-                   VALUES (%s, %s, %s, %s, %s) RETURNING *""",
-                (game_day_id, team_home, team_away, kickoff_at, stage),
+                """INSERT INTO matches (game_day_id, team_home, team_away, kickoff_at, stage, label, match_group)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *""",
+                (game_day_id, team_home, team_away, kickoff_at, stage, label, match_group),
             )
             return cur.fetchone()
 
@@ -127,6 +128,67 @@ def set_match_result(match_id: int, result_home: int, result_away: int):
                 "UPDATE matches SET result_home=%s, result_away=%s WHERE id=%s",
                 (result_home, result_away, match_id),
             )
+
+
+def resolve_bracket_after_result(match_id: int):
+    """After a result is recorded, fill team slots in subsequent bracket matches."""
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM matches WHERE id = %s", (match_id,))
+            match = cur.fetchone()
+            if not match:
+                return
+
+            if match["stage"] == "group":
+                group = match["match_group"]
+                if not group:
+                    return
+                cur.execute(
+                    "SELECT COUNT(*) AS cnt FROM matches WHERE match_group = %s AND stage = 'group' AND result_home IS NULL",
+                    (group,),
+                )
+                if cur.fetchone()["cnt"] > 0:
+                    return  # group not finished yet
+                cur.execute(
+                    """
+                    SELECT team, SUM(pts) AS pts, SUM(gf) - SUM(ga) AS gd, SUM(gf) AS gf
+                    FROM (
+                        SELECT team_home AS team,
+                               CASE WHEN result_home > result_away THEN 3
+                                    WHEN result_home = result_away THEN 1
+                                    ELSE 0 END AS pts,
+                               result_home AS gf, result_away AS ga
+                        FROM matches WHERE match_group = %s AND stage = 'group'
+                        UNION ALL
+                        SELECT team_away AS team,
+                               CASE WHEN result_away > result_home THEN 3
+                                    WHEN result_home = result_away THEN 1
+                                    ELSE 0 END AS pts,
+                               result_away AS gf, result_home AS ga
+                        FROM matches WHERE match_group = %s AND stage = 'group'
+                    ) t
+                    GROUP BY team ORDER BY pts DESC, gd DESC, gf DESC
+                    """,
+                    (group, group),
+                )
+                teams = [r["team"] for r in cur.fetchall()]
+                if len(teams) < 2:
+                    return
+                for slot, team in [("1" + group, teams[0]), ("2" + group, teams[1])]:
+                    cur.execute("UPDATE matches SET team_home = %s WHERE team_home = %s", (team, slot))
+                    cur.execute("UPDATE matches SET team_away = %s WHERE team_away = %s", (team, slot))
+
+            elif match["stage"] == "play_off":
+                label = match["label"]
+                if not label or match["result_home"] is None or match["result_home"] == match["result_away"]:
+                    return
+                if match["result_home"] > match["result_away"]:
+                    winner, loser = match["team_home"], match["team_away"]
+                else:
+                    winner, loser = match["team_away"], match["team_home"]
+                for slot, team in [(label, winner), ("L" + label, loser)]:
+                    cur.execute("UPDATE matches SET team_home = %s WHERE team_home = %s", (team, slot))
+                    cur.execute("UPDATE matches SET team_away = %s WHERE team_away = %s", (team, slot))
 
 
 def get_standings() -> list[dict]:
