@@ -10,10 +10,10 @@ COLORS = ["#818CF8", "#34D399", "#F472B6", "#FBBF24"]
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font_color="#F1F5F9",
-    xaxis=dict(gridcolor="#2D3148", linecolor="#2D3148"),
-    yaxis=dict(gridcolor="#2D3148", linecolor="#2D3148", rangemode="tozero"),
-    legend=dict(bgcolor="rgba(0,0,0,0)"),
+    font=dict(color="#F1F5F9", size=15),
+    xaxis=dict(showgrid=False, linecolor="#2D3148"),
+    yaxis=dict(showgrid=False, linecolor="#2D3148", rangemode="tozero"),
+    legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(size=14)),
     margin=dict(l=0, r=0, t=30, b=0),
 )
 
@@ -28,6 +28,7 @@ st.markdown("""
 }
 [data-testid="stMetricValue"] { color: #818CF8; }
 section[data-testid="stSidebar"] { background: #1E2130; }
+[data-testid="stDataFrame"] * { font-size: 16px !important; }
 </style>
 """, unsafe_allow_html=True)
 
