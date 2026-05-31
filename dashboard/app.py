@@ -17,7 +17,7 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=0, r=0, t=30, b=0),
 )
 
-st.set_page_config(page_title="FWC 2026", page_icon="⚽", layout="wide")
+st.set_page_config(page_title="FWC 2026", layout="wide")
 
 st.markdown("""
 <style>
@@ -32,10 +32,10 @@ section[data-testid="stSidebar"] { background: #1E2130; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("⚽ FWC 2026 — Турнир")
+st.title("FWC 2026 — Турнир")
 
 # --- Standings ---
-st.subheader("🏆 Таблица очков")
+st.subheader("Таблица очков")
 standings = get_standings()
 
 if standings.empty:
@@ -45,11 +45,11 @@ if standings.empty:
 display = standings.copy()
 display.index = range(1, len(display) + 1)
 display.index.name = "№"
-display.columns = ["Участник", "Очки", "⭐ Точный", "🟢 Разница", "🟡 Победитель", "❌ Мимо"]
+display.columns = ["Участник", "Очки", "Точный", "Разница", "Победитель", "Мимо"]
 st.dataframe(display, use_container_width=True)
 
 # --- Race Chart ---
-st.subheader("📈 Гонка очков")
+st.subheader("Гонка очков")
 daily = get_daily_points()
 
 if daily.empty:
@@ -70,7 +70,7 @@ else:
     st.plotly_chart(fig, use_container_width=True)
 
 # --- Component comparison ---
-st.subheader("📊 Из чего складываются очки")
+st.subheader("Из чего складываются очки")
 melted = standings.melt(
     id_vars=["name"],
     value_vars=["exact", "diff", "winner", "miss"],
@@ -78,10 +78,10 @@ melted = standings.melt(
     value_name="count",
 )
 melted["type"] = melted["type"].map({
-    "exact": "⭐ Точный счёт (3)",
-    "diff": "🟢 Разница (2)",
-    "winner": "🟡 Победитель (1)",
-    "miss": "❌ Мимо (0)",
+    "exact": "Точный счёт (3)",
+    "diff": "Разница (2)",
+    "winner": "Победитель (1)",
+    "miss": "Мимо (0)",
 })
 fig2 = px.bar(
     melted,
@@ -96,7 +96,7 @@ fig2.update_layout(legend_title_text="", **PLOTLY_LAYOUT)
 st.plotly_chart(fig2, use_container_width=True)
 
 # --- Accuracy stacked bar ---
-st.subheader("🎯 Точность (доля типов)")
+st.subheader("Точность (доля типов)")
 normalized = normalize_accuracy(melted)
 fig3 = px.bar(
     normalized,
@@ -106,10 +106,10 @@ fig3 = px.bar(
     text="pct",
     labels={"name": "Участник", "pct": "%", "type": ""},
     color_discrete_map={
-        "⭐ Точный счёт (3)": "#4ECBD9",
-        "🟢 Разница (2)": "#4E63D9",
-        "🟡 Победитель (1)": "#F29D35",
-        "❌ Мимо (0)": "#F21B54",
+        "Точный счёт (3)": "#4ECBD9",
+        "Разница (2)": "#4E63D9",
+        "Победитель (1)": "#F29D35",
+        "Мимо (0)": "#F21B54",
     },
 )
 fig3.update_traces(texttemplate="%{text}%", textposition="inside")
@@ -117,7 +117,7 @@ fig3.update_layout(barmode="stack", legend_title_text="", yaxis_ticksuffix="%", 
 st.plotly_chart(fig3, use_container_width=True)
 
 # --- Per-player drill-down ---
-st.subheader("🔍 Детали по участнику")
+st.subheader("Детали по участнику")
 players = standings["name"].tolist()
 selected = st.selectbox("Выбери участника", players)
 
