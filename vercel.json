@@ -3,12 +3,14 @@
     { "src": "api/*.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/api/webhook", "dest": "/api/webhook.py" },
-    { "src": "/api/cron_open", "dest": "/api/cron_open.py" },
-    { "src": "/api/cron_close", "dest": "/api/cron_close.py" }
+    { "src": "/api/webhook",         "dest": "/api/webhook.py" },
+    { "src": "/api/cron_open",       "dest": "/api/cron_open.py" },
+    { "src": "/api/cron_close",      "dest": "/api/cron_close.py" },
+    { "src": "/api/cron_ai_predict", "dest": "/api/cron_ai_predict.py" }
   ],
   "crons": [
-    { "path": "/api/cron_open",  "schedule": "0 6 * * *"  },
-    { "path": "/api/cron_close", "schedule": "0 15 * * *" }
+    { "path": "/api/cron_open",       "schedule": "0 6 * * *"  },
+    { "path": "/api/cron_close",      "schedule": "0 15 * * *" },
+    { "path": "/api/cron_ai_predict", "schedule": "0 12 * * *" }
   ]
 }

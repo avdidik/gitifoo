@@ -1,6 +1,6 @@
 CREATE TABLE participants (
   id          SERIAL PRIMARY KEY,
-  telegram_id BIGINT UNIQUE NOT NULL,
+  telegram_id BIGINT UNIQUE,  -- NULL для AI-участников
   name        TEXT NOT NULL,
   is_admin    BOOLEAN DEFAULT false
 );
@@ -51,3 +51,7 @@ SELECT
 FROM predictions p
 JOIN matches m ON p.match_id = m.id
 WHERE m.result_home IS NOT NULL;
+
+-- Migration 2026-06-01: allow NULL telegram_id for AI participants
+-- ALTER TABLE participants ALTER COLUMN telegram_id DROP NOT NULL;
+-- INSERT INTO participants (telegram_id, name) VALUES (NULL, 'Лёха AI');
