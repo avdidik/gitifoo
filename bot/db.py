@@ -225,3 +225,56 @@ def get_day_scores(game_day_id: int) -> list[dict]:
                 (game_day_id,),
             )
             return cur.fetchall()
+
+
+def get_ai_participant() -> dict | None:
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM participants WHERE name = 'Лёха AI'")
+            return cur.fetchone()
+
+
+def get_group_standings() -> list[dict]:
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT match_group, team,
+                       SUM(pts) AS pts, SUM(gf) AS gf, SUM(ga) AS ga
+                FROM (
+                    SELECT team_home AS team, match_group,
+                           CASE WHEN result_home > result_away THEN 3
+                                WHEN result_home = result_away THEN 1
+                                ELSE 0 END AS pts,
+                           result_home AS gf, result_away AS ga
+                    FROM matches
+                    WHERE stage = 'group' AND result_home IS NOT NULL
+                    UNION ALL
+                    SELECT team_away AS team, match_group,
+                           CASE WHEN result_away > result_home THEN 3
+                                WHEN result_home = result_away THEN 1
+                                ELSE 0 END AS pts,
+                           result_away AS gf, result_home AS ga
+                    FROM matches
+                    WHERE stage = 'group' AND result_home IS NOT NULL
+                ) t
+                GROUP BY match_group, team
+                ORDER BY match_group,
+                         SUM(pts) DESC,
+                         (SUM(gf) - SUM(ga)) DESC,
+                         SUM(gf) DESC
+                """
+            )
+            return cur.fetchall()
+
+
+def get_ai_predictions_count_for_game_day(game_day_id: int, participant_id: int) -> int:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT COUNT(*) FROM predictions pr
+                   JOIN matches m ON pr.match_id = m.id
+                   WHERE m.game_day_id = %s AND pr.participant_id = %s""",
+                (game_day_id, participant_id),
+            )
+            return cur.fetchone()[0]
