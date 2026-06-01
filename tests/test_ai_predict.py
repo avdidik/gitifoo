@@ -1,5 +1,5 @@
 import pytest
-from api.cron_ai_predict import build_prompt
+from bot.ai_prompt import build_prompt
 
 
 def test_build_prompt_includes_match_ids():
