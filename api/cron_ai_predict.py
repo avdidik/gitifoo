@@ -46,8 +46,8 @@ async def _send_alert(bot_token: str, admin_id: int, text: str) -> None:
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         # Lazy imports so pure functions (build_prompt) are testable without env vars
-        import anthropic
-        from bot.config import CRON_SECRET, BOT_TOKEN, ADMIN_ID, ANTHROPIC_API_KEY
+        import requests
+        from bot.config import CRON_SECRET, BOT_TOKEN, ADMIN_ID, YANDEX_API_KEY, YANDEX_FOLDER_ID
         from bot.db import (
             get_today_game_day,
             get_matches_for_game_day,
@@ -92,14 +92,24 @@ class handler(BaseHTTPRequestHandler):
             standings = get_group_standings()
             prompt = build_prompt(matches, standings)
 
-            client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-            message = client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=512,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
+            resp = requests.post(
+                "https://llm.api.cloud.yandex.net/foundationModels/v1/completion",
+                headers={
+                    "Authorization": f"Api-Key {YANDEX_API_KEY}",
+                    "x-folder-id": YANDEX_FOLDER_ID,
+                },
+                json={
+                    "modelUri": f"gpt://{YANDEX_FOLDER_ID}/yandexgpt-lite/latest",
+                    "completionOptions": {"stream": False, "temperature": 0.6, "maxTokens": "512"},
+                    "messages": [
+                        {"role": "system", "text": SYSTEM_PROMPT},
+                        {"role": "user", "text": prompt},
+                    ],
+                },
+                timeout=30,
             )
-            raw = message.content[0].text.strip()
+            resp.raise_for_status()
+            raw = resp.json()["result"]["alternatives"][0]["message"]["text"].strip()
             predictions = json.loads(raw)
 
             for pred in predictions:
