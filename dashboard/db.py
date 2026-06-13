@@ -68,6 +68,31 @@ def normalize_accuracy(melted: pd.DataFrame) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
+def get_matches_predictions() -> pd.DataFrame:
+    return _query("""
+        SELECT
+            m.id          AS match_id,
+            m.match_group,
+            m.team_home,
+            m.team_away,
+            m.kickoff_at,
+            m.result_home,
+            m.result_away,
+            p.name        AS participant_name,
+            pr.pred_home,
+            pr.pred_away,
+            s.points
+        FROM matches m
+        CROSS JOIN participants p
+        LEFT JOIN predictions pr
+            ON pr.match_id = m.id AND pr.participant_id = p.id
+        LEFT JOIN v_scores s
+            ON s.match_id = m.id AND s.participant_id = p.id
+        ORDER BY m.kickoff_at, p.name
+    """)
+
+
+@st.cache_data(ttl=300)
 def get_scores_by_stage() -> pd.DataFrame:
     return _query("""
         SELECT p.name, m.stage,
