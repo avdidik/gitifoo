@@ -210,6 +210,7 @@ with tab2:
         rows = []
         for _, m in first.iterrows():
             mid = m["match_id"]
+            has_result = pd.notna(m["result_home"])
             r: dict = {
                 ("", "Группа"):     m["match_group"] or "ПО",
                 ("", "Матч"):       f"{m['team_home']} — {m['team_away']}",
@@ -219,13 +220,17 @@ with tab2:
             }
             for name in player_order:
                 short = name.split()[-1]
-                try:
-                    p = raw_idx.loc[(mid, name)]
-                    r[(short, "прогноз")] = p["pred_str"]
-                    r[(short, "балл")]    = p["pts_str"]
-                except KeyError:
+                if not has_result:
                     r[(short, "прогноз")] = "—"
                     r[(short, "балл")]    = "—"
+                else:
+                    try:
+                        p = raw_idx.loc[(mid, name)]
+                        r[(short, "прогноз")] = p["pred_str"]
+                        r[(short, "балл")]    = p["pts_str"]
+                    except KeyError:
+                        r[(short, "прогноз")] = "—"
+                        r[(short, "балл")]    = "—"
             rows.append(r)
 
         # Totals row
@@ -240,4 +245,4 @@ with tab2:
 
         # Full-page height: no internal scroll
         height = len(display) * 35 + 60
-        st.dataframe(display, use_container_width=True, height=height)
+        st.dataframe(display, use_container_width=True, height=height, hide_index=True)
