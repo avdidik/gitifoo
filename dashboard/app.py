@@ -48,6 +48,10 @@ display.index.name = "№"
 display.columns = ["Участник", "Очки", "Точный", "Разница", "Победитель", "Мимо"]
 st.dataframe(display, use_container_width=True)
 
+# Canonical participant order (by standings rank) — used to keep colors consistent across all charts
+players = standings["name"].tolist()
+NAME_ORDER = {"name": players}
+
 # --- Race Chart ---
 st.subheader("Гонка очков")
 daily = get_daily_points()
@@ -63,6 +67,7 @@ else:
         color="name",
         markers=True,
         color_discrete_sequence=COLORS,
+        category_orders=NAME_ORDER,
         labels={"game_date": "", "cumpoints": "Очки", "name": "Участник"},
     )
     fig.update_layout(legend_title_text="", hovermode="x unified", **PLOTLY_LAYOUT)
@@ -90,6 +95,7 @@ fig2 = px.bar(
     color="name",
     barmode="group",
     color_discrete_sequence=COLORS,
+    category_orders=NAME_ORDER,
     labels={"type": "", "count": "Матчей", "name": "Участник"},
 )
 fig2.update_layout(legend_title_text="", **PLOTLY_LAYOUT)
@@ -104,6 +110,7 @@ fig3 = px.bar(
     y="pct",
     color="type",
     text="pct",
+    category_orders=NAME_ORDER,
     labels={"name": "Участник", "pct": "%", "type": ""},
     color_discrete_map={
         "Точный счёт (3)": "#4ECBD9",
