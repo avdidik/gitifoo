@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 from bot.db import (
     get_participant, add_participant, get_today_game_day, get_matches_for_game_day,
     set_match_result, get_standings, get_day_scores, add_match, open_game_day,
-    resolve_bracket_after_result,
+    resolve_bracket_after_result, get_last_game_day_with_pending_results,
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
 from bot.config import ADMIN_ID, GROUP_ID, DASH_URL
@@ -22,10 +22,9 @@ async def handle_admin_result_entry(update: Update, context: ContextTypes.DEFAUL
     if not _is_admin(update.effective_user.id):
         await query.answer("🚫 Только для администратора.", show_alert=True)
         return
-    today = date.today().isoformat()
-    game_day = get_today_game_day(today)
+    game_day = get_last_game_day_with_pending_results()
     if game_day is None:
-        await query.edit_message_text("📭 Сегодня нет игрового дня.")
+        await query.edit_message_text("✅ Все результаты уже внесены.")
         return
     matches = get_matches_for_game_day(game_day["id"])
     if not matches:
@@ -47,8 +46,10 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
         await query.answer("🚫 Только для администратора.", show_alert=True)
         return
     mode, match_idx, home, away = parse_done_callback(data)
-    today = date.today().isoformat()
-    game_day = get_today_game_day(today)
+    game_day = get_last_game_day_with_pending_results()
+    if game_day is None:
+        await query.edit_message_text("✅ Все результаты уже внесены.")
+        return
     matches = get_matches_for_game_day(game_day["id"])
     match = matches[match_idx]
     set_match_result(match["id"], home, away)

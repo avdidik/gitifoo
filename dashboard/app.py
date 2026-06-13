@@ -5,7 +5,7 @@ import streamlit as st
 
 from db import get_daily_points, get_scores_by_stage, get_standings, normalize_accuracy
 
-COLORS = ["#F21B54", "#4ECBD9", "#F29D35", "#4E63D9"]
+COLORS = ["#F21B54", "#4ECBD9", "#F29D35", "#4E63D9", "#172573"]
 
 PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",

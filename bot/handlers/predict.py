@@ -47,14 +47,14 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
         if mode == "r" and (not participant or not participant["is_admin"]):
             await query.answer("🚫 Только для администратора.", show_alert=True)
             return
-        if mode == "p" and participant:
+        if mode == "p" and participant and game_day["status"] == "open":
             upsert_prediction(participant["id"], matches[old_match_idx]["id"], old_home, old_away)
         await _show_match(query, matches, new_idx, participant["id"] if participant else None, mode)
 
     elif data.startswith("done|"):
         mode, match_idx, home, away = parse_done_callback(data)
         if mode == "p":
-            if participant:
+            if participant and game_day["status"] == "open":
                 upsert_prediction(participant["id"], matches[match_idx]["id"], home, away)
             await _show_prediction_summary(query, matches, participant)
         elif mode == "r":

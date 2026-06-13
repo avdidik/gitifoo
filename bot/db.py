@@ -268,6 +268,20 @@ def get_group_standings() -> list[dict]:
             return cur.fetchall()
 
 
+def get_last_game_day_with_pending_results() -> dict | None:
+    """Return the earliest game_day that still has matches without a result."""
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT gd.* FROM game_days gd
+                JOIN matches m ON m.game_day_id = gd.id
+                WHERE m.result_home IS NULL
+                ORDER BY gd.game_date ASC
+                LIMIT 1
+            """)
+            return cur.fetchone()
+
+
 def get_ai_predictions_count_for_game_day(game_day_id: int, participant_id: int) -> int:
     with get_conn() as conn:
         with conn.cursor() as cur:

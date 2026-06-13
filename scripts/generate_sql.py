@@ -2,7 +2,7 @@
 import csv
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -13,13 +13,19 @@ def parse_row(row):
     game_date = datetime.strptime(row["game_date"].strip(), "%d.%m.%Y").strftime("%Y-%m-%d")
     time_str = row["kickoff_utc"].strip().rstrip(";")
     kickoff_at = f"{game_date} {time_str}:00+00"
+    # Matches before 07:00 MSK belong to the previous day's game session (19:00–07:00 window)
+    hour = int(time_str.split(":")[0])
+    if hour < 7:
+        game_day_date = (datetime.strptime(game_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+    else:
+        game_day_date = game_date
     return {
         "stage": row["stage"].strip(),
         "label": row["label"].strip() or None,
         "team_home": row["team_home"].strip(),
         "team_away": row["team_away"].strip(),
         "match_group": row["group"].strip() or None,
-        "game_date": game_date,
+        "game_day_date": game_day_date,
         "kickoff_at": kickoff_at,
     }
 
@@ -36,7 +42,7 @@ def main():
         for row in csv.DictReader(f, delimiter=";"):
             rows.append(parse_row(row))
 
-    unique_dates = sorted({r["game_date"] for r in rows})
+    unique_dates = sorted({r["game_day_date"] for r in rows})
 
     lines = ["-- Auto-generated. Run in Supabase SQL Editor.\n"]
 
@@ -53,7 +59,7 @@ def main():
             f"INSERT INTO matches (game_day_id, team_home, team_away, kickoff_at, stage, label, match_group)"
             f" SELECT id, {esc(r['team_home'])}, {esc(r['team_away'])},"
             f" '{r['kickoff_at']}', {esc(r['stage'])}, {esc(r['label'])}, {esc(r['match_group'])}"
-            f" FROM game_days WHERE game_date = '{r['game_date']}';"
+            f" FROM game_days WHERE game_date = '{r['game_day_date']}';"
         )
 
     with open(OUTPUT, "w", encoding="utf-8") as out:
