@@ -173,11 +173,10 @@ with tab2:
     if raw.empty:
         st.info("Матчей пока нет.")
     else:
-        # Convert kickoff to Moscow time (UTC+3)
-        raw["kickoff_at"] = pd.to_datetime(raw["kickoff_at"], utc=True)
-        raw["dt_msk"] = raw["kickoff_at"] + pd.Timedelta(hours=3)
-        raw["дата"] = raw["dt_msk"].apply(lambda d: f"{d.day} {MONTHS[d.month - 1]}")
-        raw["время"] = raw["dt_msk"].dt.strftime("%H:%M")
+        # kickoff_at хранится в МСК, psycopg2 читает с тегом UTC — снимаем его
+        raw["kickoff_at"] = pd.to_datetime(raw["kickoff_at"]).dt.tz_localize(None)
+        raw["дата"] = raw["kickoff_at"].apply(lambda d: f"{d.day} {MONTHS[d.month - 1]}")
+        raw["время"] = raw["kickoff_at"].dt.strftime("%H:%M")
 
         # Format result, prediction and points as strings
         raw["результат_str"] = raw.apply(
