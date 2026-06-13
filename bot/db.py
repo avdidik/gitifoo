@@ -240,7 +240,14 @@ def get_group_standings() -> list[dict]:
             cur.execute(
                 """
                 SELECT match_group, team,
-                       SUM(pts) AS pts, SUM(gf) AS gf, SUM(ga) AS ga
+                       SUM(pts)                                    AS pts,
+                       COUNT(*)                                    AS gp,
+                       SUM(CASE WHEN pts = 3 THEN 1 ELSE 0 END)   AS w,
+                       SUM(CASE WHEN pts = 1 THEN 1 ELSE 0 END)   AS d,
+                       SUM(CASE WHEN pts = 0 THEN 1 ELSE 0 END)   AS l,
+                       SUM(gf)                                     AS gf,
+                       SUM(ga)                                     AS ga,
+                       SUM(gf) - SUM(ga)                          AS gd
                 FROM (
                     SELECT team_home AS team, match_group,
                            CASE WHEN result_home > result_away THEN 3

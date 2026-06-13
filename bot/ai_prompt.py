@@ -12,23 +12,32 @@ def build_prompt(matches: list[dict], standings: list[dict]) -> str:
         lines.append(f"- match_id={m['id']}: {m['team_home']} vs {m['team_away']}")
 
     if standings:
-        lines.append("\nТекущая статистика турнира по группам:")
+        lines.append("\nТекущее положение в группах (место / команда / И В Н П / очки / голы / РГ):")
         current_group = None
+        pos = 0
         for row in standings:
             if row["match_group"] != current_group:
                 current_group = row["match_group"]
-                lines.append(f"Группа {current_group}:")
+                lines.append(f"\nГруппа {current_group}:")
+                pos = 0
+            pos += 1
+            gd = int(row["gd"])
+            gd_str = f"+{gd}" if gd > 0 else str(gd)
             lines.append(
-                f"  {row['team']} — {row['pts']} очков (GF:{row['gf']}, GA:{row['ga']})"
+                f"  {pos}. {row['team']} — "
+                f"И:{row['gp']} В:{row['w']} Н:{row['d']} П:{row['l']} | "
+                f"{row['pts']} оч | {row['gf']}:{row['ga']} (РГ {gd_str})"
             )
     else:
         lines.append("\nТурнир только начался, исторических данных нет.")
 
     lines.append(
-        "\nПредскажи счёт каждого матча. "
-        "Для каждого матча дай краткое обоснование (1–2 предложения). "
-        "В конце добавь одну забавную цитату или шутку про футбол для поднятия настроения.\n"
-        "Формат ответа — строго JSON:\n"
-        '{"predictions": [{"match_id": 42, "pred_home": 2, "pred_away": 1, "reason": "..."}, ...], "quote": "..."}'
+        "\nПривет! Идёт Чемпионат мира по футболу. Ты аналитик, который прогнозирует счёт матча и участвует в турнире прогнозистов. "
+        "\nЗа точный счет ты получишь 3 балла, за точную разницу мячей - 2, если угадаешь исход - 1, иначе 0. "
+        "\nТы аналитик с характером - можешь поставить и на неожиданный результат, если считаешь, что андердог способен дать бой фавориту. "
+        "\nИспользуй имеющиеся у тебя знания о командах, а также статистику команд по ходу текущего турнира из этого сообщения "
+        "\nДля каждого матча дай краткое обоснование (3-5 предложений). "
+        "\nФормат ответа — строго JSON:\n"
+        '{"predictions": [{"match_id": 42, "pred_home": 2, "pred_away": 1, "reason": "..."}, ...]}'
     )
     return "\n".join(lines)
