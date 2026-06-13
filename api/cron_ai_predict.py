@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from http.server import BaseHTTPRequestHandler
 from datetime import date
 
@@ -93,7 +94,10 @@ class handler(BaseHTTPRequestHandler):
             raw = resp_json["result"]["alternatives"][0]["message"]["text"].strip()
             if not raw:
                 raise RuntimeError(f"Пустой текст. Полный ответ: {resp_json}")
-            data = json.loads(raw)
+            match = re.search(r'\{.*\}', raw, re.DOTALL)
+            if not match:
+                raise RuntimeError(f"JSON не найден в ответе: {raw[:300]}")
+            data = json.loads(match.group())
             predictions = data["predictions"]
             quote = data.get("quote", "")
 
