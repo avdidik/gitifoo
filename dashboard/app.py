@@ -200,17 +200,33 @@ with tab2:
 
         # Participant columns ordered by standings rank
         player_order = standings["name"].tolist() if not standings.empty else sorted(raw["participant_name"].unique())
+
+        # Collect data per participant into flat dict, then build MultiIndex
+        extra: dict[str, pd.Series] = {}
         for name in player_order:
             p = raw[raw["participant_name"] == name].set_index("match_id")
-            base[f"{name}: прогноз"] = p["pred_str"]
-            base[f"{name}: балл"] = p["pts_str"]
+            extra[(name, "прогноз")] = p["pred_str"]
+            extra[(name, "балл")] = p["pts_str"]
 
-        # Totals row
-        totals = {col: "" for col in base.columns}
-        totals["Группа"] = "ИТОГО"
+        # Totals row (flat, then re-indexed to MultiIndex)
+        totals_flat = {col: "" for col in base.columns}
+        totals_flat["Группа"] = "ИТОГО"
+        totals_extra: dict[tuple, str] = {}
         for name in player_order:
             pts = int(raw[raw["participant_name"] == name]["points"].sum())
-            totals[f"{name}: балл"] = str(pts)
+            totals_extra[(name, "прогноз")] = ""
+            totals_extra[(name, "балл")] = str(pts)
 
-        display = pd.concat([base, pd.DataFrame([totals], index=["ИТОГО"])])
+        # Build MultiIndex DataFrame
+        base_mi = base.copy()
+        base_mi.columns = pd.MultiIndex.from_tuples([("", c) for c in base.columns])
+        for key, series in extra.items():
+            base_mi[key] = series
+
+        totals_row = {("", c): v for c, v in totals_flat.items()}
+        totals_row.update(totals_extra)
+        totals_df = pd.DataFrame([totals_row], index=["ИТОГО"])
+        totals_df.columns = pd.MultiIndex.from_tuples(list(totals_row.keys()))
+
+        display = pd.concat([base_mi, totals_df])
         st.dataframe(display, use_container_width=True)
