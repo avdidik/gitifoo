@@ -84,11 +84,15 @@ class handler(BaseHTTPRequestHandler):
                 },
                 timeout=30,
             )
-            resp.raise_for_status()
-            resp_json = resp.json()
+            if not resp.ok:
+                raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:500]}")
+            try:
+                resp_json = resp.json()
+            except Exception:
+                raise RuntimeError(f"Ответ не JSON (HTTP {resp.status_code}): {resp.text[:500]}")
             raw = resp_json["result"]["alternatives"][0]["message"]["text"].strip()
             if not raw:
-                raise RuntimeError(f"YandexGPT вернул пустой текст. Полный ответ: {resp_json}")
+                raise RuntimeError(f"Пустой текст. Полный ответ: {resp_json}")
             data = json.loads(raw)
             predictions = data["predictions"]
             quote = data.get("quote", "")
