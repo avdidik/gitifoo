@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from bot.db import (
     get_participant, get_today_game_day, get_matches_for_game_day,
-    upsert_prediction, get_prediction,
+    upsert_prediction, get_prediction, get_last_game_day_with_pending_results,
 )
 from bot.handlers.picker import (
     build_picker_keyboard, build_picker_text,
@@ -34,13 +34,21 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
     query = update.callback_query
     await query.answer()
     data = query.data
-    today = date.today().isoformat()
-    game_day = get_today_game_day(today)
+    participant = get_participant(update.effective_user.id)
+
+    mode_prefix = data.split("|")[0]
+    raw_mode = data.split("|")[1] if mode_prefix in ("nav", "done") else data.split("|")[0]
+
+    if raw_mode == "r":
+        game_day = get_last_game_day_with_pending_results()
+    else:
+        today = date.today().isoformat()
+        game_day = get_today_game_day(today)
+
     if game_day is None:
         await query.edit_message_text("🚫 Нет активного игрового дня.")
         return
     matches = get_matches_for_game_day(game_day["id"])
-    participant = get_participant(update.effective_user.id)
 
     if data.startswith("nav|"):
         mode, new_idx, old_home, old_away, old_match_idx = parse_nav_callback(data)
