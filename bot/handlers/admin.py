@@ -54,22 +54,7 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     match = matches[match_idx]
     set_match_result(match["id"], home, away)
     resolve_bracket_after_result(match["id"])
-    scores = get_day_scores(game_day["id"])
-    lines = [f"✅ Результат: {flag(match['team_home'])} {home}:{away} {flag(match['team_away'])}\n"]
-    lines.append("📊 Очки за матч:")
-    for row in scores:
-        if row["match_id"] == match["id"]:
-            pts = {3: "⭐", 2: "🟢", 1: "🟡", 0: "❌"}[row["points"]]
-            lines.append(f"  {row['name']}: {row['pred_home']}:{row['pred_away']} {pts} {row['points']} pts")
-    standings = get_standings()
-    lines.append("\n🏆 Турнирная таблица:")
-    for i, s in enumerate(standings, 1):
-        lines.append(f"  {i}. {s['name']} — {s['total_points']} pts")
-    if DASH_URL:
-        lines.append(f"\n📊 Статистика: {DASH_URL}")
-    await context.bot.send_message(GROUP_ID, "\n".join(lines))
 
-    # Auto-advance to next unsaved match if any
     matches = get_matches_for_game_day(game_day["id"])
     next_match = next((m for m in matches if m["result_home"] is None), None)
     if next_match:
@@ -78,6 +63,23 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
         keyboard = build_picker_keyboard("r", idx, 0, 0, len(matches))
         await query.edit_message_text(text, reply_markup=keyboard)
     else:
+        scores = get_day_scores(game_day["id"])
+        lines = ["📊 Результаты дня:\n"]
+        current_label = None
+        for row in scores:
+            match_label = f"{flag(row['team_home'])} {row['result_home']}:{row['result_away']} {flag(row['team_away'])}"
+            if match_label != current_label:
+                lines.append(f"\n⚽ {match_label}")
+                current_label = match_label
+            pts = {3: "⭐", 2: "🟢", 1: "🟡", 0: "❌"}[row["points"]]
+            lines.append(f"  {row['name']}: {row['pred_home']}:{row['pred_away']} {pts} {row['points']} pts")
+        standings = get_standings()
+        lines.append("\n🏆 Турнирная таблица:")
+        for i, s in enumerate(standings, 1):
+            lines.append(f"  {i}. {s['name']} — {s['total_points']} pts")
+        if DASH_URL:
+            lines.append(f"\n📊 Статистика: {DASH_URL}")
+        await context.bot.send_message(GROUP_ID, "\n".join(lines))
         await query.edit_message_text("✅ Все результаты сохранены.")
 
 

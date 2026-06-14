@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from bot.db import (
     get_participant, get_today_game_day, get_matches_for_game_day,
     upsert_prediction, get_prediction, get_last_game_day_with_pending_results,
+    set_match_result, resolve_bracket_after_result,
 )
 from bot.handlers.picker import (
     build_picker_keyboard, build_picker_text,
@@ -55,6 +56,9 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
         if mode == "r" and (not participant or not participant["is_admin"]):
             await query.answer("🚫 Только для администратора.", show_alert=True)
             return
+        if mode == "r":
+            set_match_result(matches[old_match_idx]["id"], old_home, old_away)
+            resolve_bracket_after_result(matches[old_match_idx]["id"])
         if mode == "p" and participant and game_day["status"] == "open":
             upsert_prediction(participant["id"], matches[old_match_idx]["id"], old_home, old_away)
         await _show_match(query, matches, new_idx, participant["id"] if participant else None, mode)
@@ -84,7 +88,10 @@ async def _show_match(query, matches: list, idx: int,
                       participant_id: int | None, mode: str):
     match = matches[idx]
     home, away = 0, 0
-    if participant_id:
+    if mode == "r":
+        home = match["result_home"] or 0
+        away = match["result_away"] or 0
+    elif participant_id:
         existing = get_prediction(participant_id, match["id"])
         if existing:
             home, away = existing["pred_home"], existing["pred_away"]
