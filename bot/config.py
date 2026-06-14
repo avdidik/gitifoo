@@ -10,5 +10,5 @@ ADMIN_ID = int(os.environ["ADMIN_ID"])
 CRON_SECRET = os.environ["CRON_SECRET"]
 YANDEX_API_KEY = os.environ["YANDEX_API_KEY"]
 YANDEX_FOLDER_ID = os.environ["YANDEX_FOLDER_ID"]
-DASH_URL = os.environ.get("DASH_URL")  # Optional: set after Streamlit deploy
+DASH_URL = os.environ.get("DASH_URL", "https://gitifoo.streamlit.app/")
 BOT_URL = "https://t.me/gitifoo_bot"

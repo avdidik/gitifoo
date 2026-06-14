@@ -149,9 +149,12 @@ with tab1:
             if not p_daily.empty:
                 best = p_daily.loc[p_daily["day_points"].idxmax()]
                 worst = p_daily.loc[p_daily["day_points"].idxmin()]
+                def fmt_day(d):
+                    t = pd.Timestamp(d)
+                    return f"{t.day} {MONTHS[t.month - 1]}"
                 col4, col5 = st.columns(2)
-                col4.metric("Лучший день", str(best["game_date"]), f"{int(best['day_points'])} очков")
-                col5.metric("Худший день", str(worst["game_date"]), f"{int(worst['day_points'])} очков")
+                col4.metric("Лучший день", fmt_day(best["game_date"]), f"{int(best['day_points'])} очков")
+                col5.metric("Худший день", fmt_day(worst["game_date"]), f"{int(worst['day_points'])} очков")
 
         stage_df = get_scores_by_stage()
         if not stage_df.empty:

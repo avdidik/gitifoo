@@ -38,9 +38,7 @@ def build_picker_keyboard(mode: str, match_idx: int,
 
 def build_picker_text(match: dict, match_idx: int, total: int,
                       home: int, away: int) -> str:
-    from datetime import timezone, timedelta
-    MSK = timezone(timedelta(hours=3))
-    kickoff = match["kickoff_at"].astimezone(MSK).strftime("%H:%M")
+    kickoff = match["kickoff_at"].strftime("%H:%M")
     home_name = flag(match["team_home"])
     away_name = flag(match["team_away"])
     return (
