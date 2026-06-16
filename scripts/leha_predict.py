@@ -23,8 +23,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 load_dotenv()
 
-import anthropic
-from bot.ai_prompt import SYSTEM_PROMPT, build_prompt
+# import anthropic
+# from bot.ai_prompt import SYSTEM_PROMPT, build_prompt
 from bot.db import (
     get_today_game_day,
     get_matches_for_game_day,
@@ -42,19 +42,19 @@ async def send_to_group(text: str) -> None:
     await Bot(token=BOT_TOKEN).send_message(chat_id=GROUP_ID, text=text)
 
 
-def call_claude(prompt: str) -> dict:
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=2048,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    raw = message.content[0].text.strip()
-    match = re.search(r'\{.*\}', raw, re.DOTALL)
-    if not match:
-        raise RuntimeError(f"JSON не найден в ответе:\n{raw[:500]}")
-    return json.loads(match.group())
+# def call_claude(prompt: str) -> dict:
+#     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+#     message = client.messages.create(
+#         model="claude-sonnet-4-6",
+#         max_tokens=2048,
+#         system=SYSTEM_PROMPT,
+#         messages=[{"role": "user", "content": prompt}],
+#     )
+#     raw = message.content[0].text.strip()
+#     match = re.search(r'\{.*\}', raw, re.DOTALL)
+#     if not match:
+#         raise RuntimeError(f"JSON не найден в ответе:\n{raw[:500]}")
+#     return json.loads(match.group())
 
 
 def main():
@@ -90,12 +90,14 @@ def main():
         print(f"⚠️  Лёха AI уже сделал {existing} прогноз(ов) на {today}. Используй --force для перезаписи.")
         sys.exit(0)
 
-    print(f"📋 Матчей: {len(matches)}, запрашиваю Claude...")
+    # Прогнозы генерирует Claude Code в чате, сохраняет leha_save.py
+    print("ℹ️  Используй leha_context.py + leha_save.py для генерации прогнозов через Claude Code.")
+    sys.exit(0)
 
-    standings = get_group_standings()
-    prompt = build_prompt(matches, standings)
-    data = call_claude(prompt)
-    predictions = data["predictions"]
+    # standings = get_group_standings()
+    # prompt = build_prompt(matches, standings)
+    # data = call_claude(prompt)
+    # predictions = data["predictions"]
 
     match_by_id = {m["id"]: m for m in matches}
 
