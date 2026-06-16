@@ -1,13 +1,11 @@
 import asyncio
 from http.server import BaseHTTPRequestHandler
-from datetime import date, timezone, timedelta
+from datetime import date
 
 from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN, BOT_URL
 from bot.db import open_game_day, get_matches_for_game_day
 from bot.teams import flag
 from telegram import Bot
-
-MSK = timezone(timedelta(hours=3))
 
 
 class handler(BaseHTTPRequestHandler):
@@ -29,7 +27,7 @@ class handler(BaseHTTPRequestHandler):
 
         lines = [f"🌅 Игровой день {today} открыт! Принимаю прогнозы до 18:00.\n\nМатчи:"]
         for m in matches:
-            kickoff = m["kickoff_at"].astimezone(MSK).strftime("%H:%M")
+            kickoff = m["kickoff_at"].strftime("%H:%M")
             lines.append(f"  ⚽ {flag(m['team_home'])} vs {flag(m['team_away'])} в {kickoff}")
         lines.append(f"\n👉 Сделать прогноз: {BOT_URL}")
 

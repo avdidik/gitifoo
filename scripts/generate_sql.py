@@ -13,9 +13,9 @@ def parse_row(row):
     game_date = datetime.strptime(row["game_date"].strip(), "%d.%m.%Y").strftime("%Y-%m-%d")
     time_str = row["kickoff_utc"].strip().rstrip(";")
     kickoff_at = f"{game_date} {time_str}:00+00"
-    # Matches before 07:00 MSK belong to the previous day's game session (19:00–07:00 window)
+    # Matches before 09:00 MSK belong to the previous day's game session (19:00–08:59 window)
     hour = int(time_str.split(":")[0])
-    if hour < 7:
+    if hour < 9:
         game_day_date = (datetime.strptime(game_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
     else:
         game_day_date = game_date
