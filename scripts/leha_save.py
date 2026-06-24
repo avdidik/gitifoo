@@ -63,9 +63,12 @@ for pred in predictions:
 message = "\n\n".join(lines)
 print(message)
 
-try:
-    asyncio.run(send_to_group(message))
-    print(f"\n✅ {len(predictions)} прогнозов сохранено и отправлено в группу.")
-except Exception as e:
+if args.send:
+    try:
+        asyncio.run(send_to_group(message))
+        print(f"\n✅ {len(predictions)} прогнозов сохранено и отправлено в группу.")
+    except Exception as e:
+        print(f"\n✅ {len(predictions)} прогнозов сохранено в БД.")
+        print(f"⚠️  Telegram недоступен (VPN?): {e}")
+else:
     print(f"\n✅ {len(predictions)} прогнозов сохранено в БД.")
-    print(f"⚠️  Telegram недоступен (VPN?): {e}")
