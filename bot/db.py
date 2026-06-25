@@ -65,7 +65,7 @@ def close_game_day(date_str: str):
 def get_matches_for_game_day(game_day_id: int) -> list[dict]:
     with get_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("SELECT * FROM matches WHERE game_day_id = %s ORDER BY kickoff_at", (game_day_id,))
+            cur.execute("SELECT * FROM matches WHERE game_day_id = %s ORDER BY kickoff_at, id", (game_day_id,))
             return cur.fetchall()
 
 
