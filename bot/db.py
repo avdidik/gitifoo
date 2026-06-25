@@ -221,7 +221,7 @@ def get_day_scores(game_day_id: int) -> list[dict]:
                    JOIN predictions pr ON pr.participant_id = s.participant_id
                                       AND pr.match_id = s.match_id
                    WHERE s.game_day_id = %s
-                   ORDER BY m.kickoff_at, p.name""",
+                   ORDER BY m.kickoff_at, m.id, p.name""",
                 (game_day_id,),
             )
             return cur.fetchall()
