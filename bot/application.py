@@ -5,7 +5,7 @@ from bot.handlers.predict import handle_predict_entry, handle_picker_callback
 from bot.handlers.results import handle_results
 from bot.handlers.admin import (
     handle_admin_result_entry, add_player_command, add_match_command,
-    standings_command, set_winner_command,
+    standings_command, set_winner_command, handle_set_winner_callback,
 )
 
 
@@ -16,6 +16,7 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("add_match", add_match_command))
     app.add_handler(CommandHandler("standings", standings_command))
     app.add_handler(CommandHandler("set_winner", set_winner_command))
+    app.add_handler(CallbackQueryHandler(handle_set_winner_callback, pattern=r"^setwin\|"))
     app.add_handler(CallbackQueryHandler(handle_predict_entry, pattern=r"^menu\|predict$"))
     app.add_handler(CallbackQueryHandler(handle_results, pattern=r"^menu\|results$"))
     app.add_handler(CallbackQueryHandler(handle_admin_result_entry, pattern=r"^menu\|admin_result$"))

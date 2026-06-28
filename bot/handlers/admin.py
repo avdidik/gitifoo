@@ -1,10 +1,10 @@
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from bot.db import (
     get_participant, add_participant, get_today_game_day, get_matches_for_game_day,
     set_match_result, get_standings, get_day_scores, add_match, open_game_day,
     resolve_bracket_after_result, get_last_game_day_with_pending_results,
-    set_match_winner, get_play_off_match_by_label,
+    set_match_winner, get_play_off_match_by_label, get_match_by_id,
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
 from bot.config import ADMIN_ID, GROUP_ID, DASH_URL
@@ -58,11 +58,15 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
 
     # Ничья в плей-офф: счёт идёт в зачёт, но сетка не двинется без победителя
     if match["stage"] == "play_off" and home == away:
+        kb = InlineKeyboardMarkup([[
+            InlineKeyboardButton(match["team_home"], callback_data=f"setwin|{match['id']}|h"),
+            InlineKeyboardButton(match["team_away"], callback_data=f"setwin|{match['id']}|a"),
+        ]])
         await context.bot.send_message(
             update.effective_user.id,
             f"⚠️ Ничья в плей-офф ({match['label']}: {match['team_home']} vs {match['team_away']}).\n"
-            f"Кто прошёл по пенальти? Отправьте:\n"
-            f"/set_winner {match['label']} <Команда>",
+            f"Кто прошёл дальше (пенальти/доп. время)?",
+            reply_markup=kb,
         )
 
     matches = get_matches_for_game_day(game_day["id"])
@@ -127,6 +131,25 @@ async def add_match_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         game_day = open_game_day(date_str)
     add_match(game_day["id"], team_home, team_away, kickoff_at, stage)
     await update.message.reply_text(f"✅ Матч добавлен: {team_home} vs {team_away} {date_str} {time_str}")
+
+
+async def handle_set_winner_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not _is_admin(update.effective_user.id):
+        await query.answer("🚫 Только для администратора.", show_alert=True)
+        return
+    await query.answer()
+    _, match_id_str, side = query.data.split("|")
+    match = get_match_by_id(int(match_id_str))
+    if match is None:
+        await query.edit_message_text("❌ Матч не найден.")
+        return
+    team = match["team_home"] if side == "h" else match["team_away"]
+    set_match_winner(match["id"], team)
+    resolve_bracket_after_result(match["id"])
+    await query.edit_message_text(
+        f"✅ Прошёл дальше: {team} ({match['label']}). Сетка обновлена."
+    )
 
 
 async def set_winner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

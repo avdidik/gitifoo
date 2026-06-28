@@ -308,6 +308,13 @@ def get_last_game_day_with_pending_results() -> dict | None:
             return cur.fetchone()
 
 
+def get_match_by_id(match_id: int) -> dict | None:
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM matches WHERE id = %s", (match_id,))
+            return cur.fetchone()
+
+
 def get_play_off_match_by_label(label: str) -> dict | None:
     with get_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
