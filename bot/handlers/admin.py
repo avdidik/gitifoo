@@ -4,6 +4,7 @@ from bot.db import (
     get_participant, add_participant, get_today_game_day, get_matches_for_game_day,
     set_match_result, get_standings, get_day_scores, add_match, open_game_day,
     resolve_bracket_after_result, get_last_game_day_with_pending_results,
+    set_match_winner, get_play_off_match_by_label,
 )
 from bot.handlers.picker import build_picker_keyboard, build_picker_text, parse_done_callback
 from bot.config import ADMIN_ID, GROUP_ID, DASH_URL
@@ -54,6 +55,15 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     match = matches[match_idx]
     set_match_result(match["id"], home, away)
     resolve_bracket_after_result(match["id"])
+
+    # Ничья в плей-офф: счёт идёт в зачёт, но сетка не двинется без победителя
+    if match["stage"] == "play_off" and home == away:
+        await context.bot.send_message(
+            update.effective_user.id,
+            f"⚠️ Ничья в плей-офф ({match['label']}: {match['team_home']} vs {match['team_away']}).\n"
+            f"Кто прошёл по пенальти? Отправьте:\n"
+            f"/set_winner {match['label']} <Команда>",
+        )
 
     matches = get_matches_for_game_day(game_day["id"])
     next_match = next((m for m in matches if m["result_home"] is None), None)
@@ -117,6 +127,39 @@ async def add_match_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         game_day = open_game_day(date_str)
     add_match(game_day["id"], team_home, team_away, kickoff_at, stage)
     await update.message.reply_text(f"✅ Матч добавлен: {team_home} vs {team_away} {date_str} {time_str}")
+
+
+async def set_winner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    args = context.args
+    if len(args) < 2:
+        await update.message.reply_text(
+            "Usage: /set_winner <match_id|label> <Команда>\n"
+            "Пример: /set_winner A03 Канада\n"
+            "Нужно только для плей-офф при ничьей в основное время."
+        )
+        return
+    ident, team = args[0], " ".join(args[1:])
+    if ident.isdigit():
+        winner_match = set_match_winner(int(ident), team)
+    else:
+        m = get_play_off_match_by_label(ident)
+        winner_match = set_match_winner(m["id"], team) if m else None
+    if winner_match is None:
+        await update.message.reply_text(f"❌ Матч не найден: {ident}")
+        return
+    if team not in (winner_match["team_home"], winner_match["team_away"]):
+        set_match_winner(winner_match["id"], None)  # откат битого значения
+        await update.message.reply_text(
+            f"❌ «{team}» не играет в этом матче "
+            f"({winner_match['team_home']} vs {winner_match['team_away']})."
+        )
+        return
+    resolve_bracket_after_result(winner_match["id"])
+    await update.message.reply_text(
+        f"✅ Прошёл дальше: {team} ({winner_match['label']}). Сетка обновлена."
+    )
 
 
 async def standings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -21,7 +21,8 @@ CREATE TABLE matches (
   label        TEXT,           -- bracket id: A01..A16, B01..B08, QF1..QF4, SF1, SF2, F1, F3
   match_group  TEXT,           -- group letter A-L (group stage only)
   result_home  INT,
-  result_away  INT
+  result_away  INT,
+  winner_team  TEXT            -- play_off: кто прошёл дальше при ничьей в осн. время (пенальти/доп. время)
 );
 
 CREATE TABLE predictions (
@@ -55,3 +56,6 @@ WHERE m.result_home IS NOT NULL;
 -- Migration 2026-06-01: allow NULL telegram_id for AI participants
 -- ALTER TABLE participants ALTER COLUMN telegram_id DROP NOT NULL;
 -- INSERT INTO participants (telegram_id, name) VALUES (NULL, 'Лёха AI');
+
+-- Migration 2026-06-28: play_off — кто прошёл при ничьей в основное время
+-- ALTER TABLE matches ADD COLUMN IF NOT EXISTS winner_team TEXT;

@@ -130,6 +130,18 @@ def set_match_result(match_id: int, result_home: int, result_away: int):
             )
 
 
+def set_match_winner(match_id: int, winner_team: str) -> dict | None:
+    """Задать команду, прошедшую дальше (play_off, ничья в осн. время).
+    Возвращает матч, если найден, иначе None."""
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "UPDATE matches SET winner_team=%s WHERE id=%s RETURNING *",
+                (winner_team, match_id),
+            )
+            return cur.fetchone()
+
+
 def resolve_bracket_after_result(match_id: int):
     """After a result is recorded, fill team slots in subsequent bracket matches."""
     with get_conn() as conn:
@@ -180,12 +192,19 @@ def resolve_bracket_after_result(match_id: int):
 
             elif match["stage"] == "play_off":
                 label = match["label"]
-                if not label or match["result_home"] is None or match["result_home"] == match["result_away"]:
+                if not label or match["result_home"] is None:
                     return
                 if match["result_home"] > match["result_away"]:
                     winner, loser = match["team_home"], match["team_away"]
-                else:
+                elif match["result_home"] < match["result_away"]:
                     winner, loser = match["team_away"], match["team_home"]
+                else:
+                    # Ничья в основное время — победитель определяется по
+                    # пенальти/доп. времени, его задаёт админ через winner_team.
+                    winner = match.get("winner_team")
+                    if not winner:
+                        return  # ждём, пока админ укажет, кто прошёл дальше
+                    loser = match["team_away"] if winner == match["team_home"] else match["team_home"]
                 for slot, team in [(label, winner), ("L" + label, loser)]:
                     cur.execute("UPDATE matches SET team_home = %s WHERE team_home = %s", (team, slot))
                     cur.execute("UPDATE matches SET team_away = %s WHERE team_away = %s", (team, slot))
@@ -286,6 +305,16 @@ def get_last_game_day_with_pending_results() -> dict | None:
                 ORDER BY gd.game_date ASC
                 LIMIT 1
             """)
+            return cur.fetchone()
+
+
+def get_play_off_match_by_label(label: str) -> dict | None:
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT * FROM matches WHERE stage = 'play_off' AND label = %s",
+                (label,),
+            )
             return cur.fetchone()
 
 
