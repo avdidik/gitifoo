@@ -40,6 +40,24 @@ async def handle_admin_result_entry(update: Update, context: ContextTypes.DEFAUL
     await query.edit_message_text(text, reply_markup=keyboard)
 
 
+async def prompt_playoff_winner_if_draw(context, admin_id, match, home, away):
+    """Ничья в плей-офф: счёт идёт в зачёт, но сетка не двинется без победителя.
+    Показывает админу кнопки выбора прошедшего дальше. Вызывается из обоих
+    путей сохранения результата — done (Подтвердить) и nav (Далее →)."""
+    if match["stage"] != "play_off" or home != away:
+        return
+    kb = InlineKeyboardMarkup([[
+        InlineKeyboardButton(match["team_home"], callback_data=f"setwin|{match['id']}|h"),
+        InlineKeyboardButton(match["team_away"], callback_data=f"setwin|{match['id']}|a"),
+    ]])
+    await context.bot.send_message(
+        admin_id,
+        f"⚠️ Ничья в плей-офф ({match['label']}: {match['team_home']} vs {match['team_away']}).\n"
+        f"Кто прошёл дальше (пенальти/доп. время)?",
+        reply_markup=kb,
+    )
+
+
 async def handle_picker_callback_admin_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     data = query.data
@@ -56,18 +74,7 @@ async def handle_picker_callback_admin_done(update: Update, context: ContextType
     set_match_result(match["id"], home, away)
     resolve_bracket_after_result(match["id"])
 
-    # Ничья в плей-офф: счёт идёт в зачёт, но сетка не двинется без победителя
-    if match["stage"] == "play_off" and home == away:
-        kb = InlineKeyboardMarkup([[
-            InlineKeyboardButton(match["team_home"], callback_data=f"setwin|{match['id']}|h"),
-            InlineKeyboardButton(match["team_away"], callback_data=f"setwin|{match['id']}|a"),
-        ]])
-        await context.bot.send_message(
-            update.effective_user.id,
-            f"⚠️ Ничья в плей-офф ({match['label']}: {match['team_home']} vs {match['team_away']}).\n"
-            f"Кто прошёл дальше (пенальти/доп. время)?",
-            reply_markup=kb,
-        )
+    await prompt_playoff_winner_if_draw(context, update.effective_user.id, match, home, away)
 
     matches = get_matches_for_game_day(game_day["id"])
     next_match = next((m for m in matches if m["result_home"] is None), None)

@@ -59,6 +59,11 @@ async def handle_picker_callback(update: Update, context: ContextTypes.DEFAULT_T
         if mode == "r":
             set_match_result(matches[old_match_idx]["id"], old_home, old_away)
             resolve_bracket_after_result(matches[old_match_idx]["id"])
+            from bot.handlers.admin import prompt_playoff_winner_if_draw
+            await prompt_playoff_winner_if_draw(
+                context, update.effective_user.id,
+                matches[old_match_idx], old_home, old_away,
+            )
         if mode == "p" and participant and game_day["status"] == "open":
             upsert_prediction(participant["id"], matches[old_match_idx]["id"], old_home, old_away)
         await _show_match(query, matches, new_idx, participant["id"] if participant else None, mode)
