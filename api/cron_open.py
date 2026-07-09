@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler
 from datetime import date
 
 from bot.config import CRON_SECRET, GROUP_ID, BOT_TOKEN, BOT_URL
-from bot.db import open_game_day, get_matches_for_game_day
+from bot.db import open_game_day, get_matches_for_game_day, get_today_game_day
 from bot.teams import flag
 from telegram import Bot
 
@@ -16,14 +16,18 @@ class handler(BaseHTTPRequestHandler):
             return
 
         today = date.today().isoformat()
-        game_day = open_game_day(today)
-        matches = get_matches_for_game_day(game_day["id"])
+        # Не создаём пустой день в выходной: открываем только уже существующий
+        # день, у которого есть матчи (расписание грузится заранее).
+        game_day = get_today_game_day(today)
+        matches = get_matches_for_game_day(game_day["id"]) if game_day else []
 
         if not matches:
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"No matches today")
             return
+
+        open_game_day(today)
 
         lines = [f"🌅 Игровой день {today} открыт! Принимаю прогнозы до 18:00.\n\nМатчи:"]
         for m in matches:
