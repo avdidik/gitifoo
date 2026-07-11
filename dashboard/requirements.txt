@@ -2,3 +2,8 @@ streamlit==1.35.0
 plotly==5.22.0
 pandas==2.2.2
 psycopg[binary]==3.2.6
+# Нативный стек закреплён под эпоху streamlit 1.35 / pandas 2.2 (numpy 1.x).
+# Без пинов Streamlit Cloud при пересборке тянет numpy 2.x / pyarrow 18.x —
+# ABI-несовместимость и segfault при старте (health-check EOF).
+numpy==1.26.4
+pyarrow==16.1.0
